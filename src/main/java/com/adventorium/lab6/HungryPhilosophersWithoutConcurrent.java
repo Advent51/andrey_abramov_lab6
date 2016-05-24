@@ -10,27 +10,28 @@ public class HungryPhilosophersWithoutConcurrent {
     private final int NO_OF_PHILOSOPHER;
     private final int SIMULATION_MILLIS;
 
-    HungryPhilosophersWithoutConcurrent(){
+    HungryPhilosophersWithoutConcurrent() {
         NO_OF_PHILOSOPHER = 5;
         SIMULATION_MILLIS = 1000 * 5;
         System.out.println("Five philosophers without util.concurrent:");
         startTroublesWithoutConcurrent();
     }
 
-    private class ChopStick{
+    private class ChopStick {
 
         private final int id;
+        volatile private int owner = -1;
 
         ChopStick(int id) {
             this.id = id;
         }
 
-        synchronized boolean pickUp() {
-            return up.tryLock(10, TimeUnit.MILLISECONDS);
+        synchronized void pickUp(int owner_id) {
+            this.owner = owner_id;
         }
 
         synchronized void putDown() {
-            up.unlock();
+            this.owner = -1;
         }
 
         @Override
@@ -50,6 +51,9 @@ public class HungryPhilosophersWithoutConcurrent {
         private Random randomGenerator = new Random();
         private int noOfTurnsToEat = 0;
 
+        private Thread t;
+        private String threadName;
+
         Philosopher(int id, ChopStick leftChopStick, ChopStick rightChopStick) {
             this.id = id;
             this.leftChopStick = leftChopStick;
@@ -62,8 +66,10 @@ public class HungryPhilosophersWithoutConcurrent {
             try {
                 while (!isTummyFull) {
                     think();
-                    if (leftChopStick.pickUp()) {
-                        if (rightChopStick.pickUp()) {
+                    if (leftChopStick.owner == -1) {
+                        leftChopStick.pickUp(this.id);
+                        if (rightChopStick.owner == -1) {
+                            rightChopStick.pickUp(this.id);
                             eat();
                             rightChopStick.putDown();
                         }
@@ -72,6 +78,15 @@ public class HungryPhilosophersWithoutConcurrent {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+
+        public void start(String name) {
+            this.threadName = name;
+            System.out.println("Starting " + threadName);
+            if (t == null) {
+                t = new Thread(this, threadName);
+                t.start();
             }
         }
 
@@ -97,7 +112,33 @@ public class HungryPhilosophersWithoutConcurrent {
 
     }
 
-    private void startTroublesWithoutConcurrent(){
+    private void startTroublesWithoutConcurrent() {
 
+        Philosopher[] philosophers = new Philosopher[NO_OF_PHILOSOPHER];
+
+        ChopStick[] chopSticks = new ChopStick[NO_OF_PHILOSOPHER];
+        for (int i = 0; i < NO_OF_PHILOSOPHER; i++) {
+            chopSticks[i] = new ChopStick(i);
+        }
+
+        for (int i = 0; i < NO_OF_PHILOSOPHER; i++) {
+            philosophers[i] = new Philosopher(i, chopSticks[i], chopSticks[(i + 1) % NO_OF_PHILOSOPHER]);
+            philosophers[i].start(String.valueOf(i));
+        }
+
+        try {
+            Thread.sleep(SIMULATION_MILLIS);
+            for (Philosopher philosopher : philosophers) {
+                philosopher.isTummyFull = true;
+            }
+
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            for (Philosopher philosopher : philosophers) {
+                System.out.println(philosopher + " => No of Turns to Eat ="
+                        + philosopher.getNoOfTurnsToEat());
+            }
+        }
     }
 }
