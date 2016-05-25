@@ -5,9 +5,9 @@ package com.adventorium.lab6;
  */
 public class Main {
     public static void main(String[] args) {
-        //OneHundredThreads oneHundredThreads = new OneHundredThreads();
-        //HungryPhilosophers hungryPhilosophers = new HungryPhilosophers();
+        OneHundredThreads oneHundredThreads = new OneHundredThreads();
+        HungryPhilosophers hungryPhilosophers = new HungryPhilosophers();
         //HungryPhilosophersWithoutConcurrent hungryPhilosophersWithoutConcurrent = new HungryPhilosophersWithoutConcurrent();
-        HungryPhilosophersVer2 hungryPhilosophersVer2 = new HungryPhilosophersVer2();
+        HungryPhilosophersWithoutConcurrentVer2 hungryPhilosophersWithoutConcurrentVer2 = new HungryPhilosophersWithoutConcurrentVer2();
     }
 }

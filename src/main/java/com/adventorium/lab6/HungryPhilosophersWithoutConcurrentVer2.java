@@ -5,11 +5,11 @@ import java.util.Random;
 /**
  * Created by Андрей on 24.05.2016.
  */
-public class HungryPhilosophersVer2 {
+public class HungryPhilosophersWithoutConcurrentVer2 {
     private final int NO_OF_PHILOSOPHER;
     private final int SIMULATION_MILLIS;
 
-    HungryPhilosophersVer2() {
+    HungryPhilosophersWithoutConcurrentVer2() {
         NO_OF_PHILOSOPHER = 5;
         SIMULATION_MILLIS = 1000 * 5;
         System.out.println("Five philosophers without util.concurrent:");
